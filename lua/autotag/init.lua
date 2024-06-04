@@ -12,13 +12,14 @@ local function findLastTag(text)
   return lastTag
 end
 
-local function extract_last_html_tag()
-  local text = vim.api.nvimMet_current_line()
+-- Ensure this function is globally accessible
+function _G.extract_last_html_tag()
+  local text = vim.api.nvim_get_current_line()
 
   local tag = findLastTag(text)
   if tag then
     -- Get the current cursor position
-    local row, col = unpack(vim.api.nvim_winMet_cursor(0))
+    local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
     local insert_text = "></" .. tag .. ">"
     vim.schedule(function()
@@ -32,7 +33,6 @@ local function extract_last_html_tag()
 end
 
 M.setupAutoTag = function()
-  print("it triggers")
   vim.api.nvim_buf_set_keymap(0, "i", ">", "v:lua.extract_last_html_tag()", { noremap = true, expr = true })
 end
 
@@ -43,16 +43,9 @@ function M.setup()
     group = "test",
     pattern = "typescriptreact",
     callback = function()
-      vim.api.nvim_buf_set_keymap(0, "n", "<leader>tt", "lua require('autotag').print_message()<CR>", {})
+      M.setupAutoTag()
     end,
   })
 end
 
--- vim.cmd([[
---         augroup jsx_tsx_mappings
---           autocmd!
---           autocmd FileType typescriptreact,javascriptreact,html lua M.setupAutoTag()
---         augroup END
---       ]])
---
 return M
