@@ -29,27 +29,21 @@ local function extract_last_html_tag()
   local text = vim.api.nvim_get_current_line()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
+  local insertText = ">"
   local prioChar = getchar_before_cursor(row, col)
-  print("this is prio " .. prioChar)
   if prioChar == "<" then
-    vim.schedule(function()
-      vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { "</>" })
-      vim.api.nvim_win_set_cursor(0, { row, col })
-    end)
-    return ""
+    insertText = "</>"
   end
 
   local tag = findLastTag(text)
   if tag then
-    local insert_text = "</" .. tag .. ">"
-    vim.schedule(function()
-      vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { insert_text })
-      vim.api.nvim_win_set_cursor(0, { row, col })
-    end)
-    return ""
-  else
-    return ">"
+    insertText = "</" .. tag .. ">"
   end
+
+  vim.schedule(function()
+    vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { insertText })
+    vim.api.nvim_win_set_cursor(0, { row, col })
+  end)
 end
 
 function M.setup(opts)
