@@ -29,14 +29,16 @@ local function extract_last_html_tag()
   local text = vim.api.nvim_get_current_line()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
 
-  local insertText = ">"
+  local insertText = ""
+  -- handle empty react tag
   local prioChar = getchar_before_cursor(row, col)
   if prioChar == "<" then
     insertText = "</>"
   end
 
   local tag = findLastTag(text)
-  if tag then
+  -- if find a tag and it doesnt have a closing in it
+  if tag and prioChar ~= "/" then
     insertText = "</" .. tag .. ">"
   end
 
@@ -62,10 +64,6 @@ function M.setup(opts)
       end
     end,
   })
-
-  vim.api.nvim_create_user_command("ExtractLastHtmlTag", function()
-    extract_last_html_tag()
-  end, { nargs = 0 })
 end
 
 return M
